@@ -62,8 +62,9 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
             }
             return this.calculateDistanceBup(locationToCartesian(from), locationToCartesian(to));
         } catch (IOException e) {
-            e.printStackTrace();
-              return this.calculateDistanceBup(locationToCartesian(from), locationToCartesian(to));
+            System.err.println("[DistanceCalc] Error fetching ORS data from: " + requestUrl);
+            e.printStackTrace(System.err);
+            return this.calculateDistanceBup(locationToCartesian(from), locationToCartesian(to));
         }
     }
 
