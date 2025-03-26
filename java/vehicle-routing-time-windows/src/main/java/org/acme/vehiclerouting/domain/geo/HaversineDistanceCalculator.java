@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class HaversineDistanceCalculator implements DistanceCalculator {
 
-    String API_KEY = "5b3ce3597851110001cf6248e81220611dab419c9fd80d4f8bfb8e21"; // Replace with your actual API key
+ 
     String BASE_URL = "http://localhost:8081/ors/v2/directions/driving-car/";
 
     private static final int EARTH_RADIUS_IN_KM = 6371;
@@ -39,8 +39,8 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         }
  
 
-        String requestUrl = BASE_URL + "?api_key=" + API_KEY
-                + "&start=" + from.getLongitude() + "," + from.getLatitude()
+        String requestUrl = BASE_URL + "?"
+                + "start=" + from.getLongitude() + "," + from.getLatitude()
                 + "&maximum_speed=85" 
                 + "&end=" + to.getLongitude() + "," + to.getLatitude();
                 //System.out.println("URL: " + requestUrl);            

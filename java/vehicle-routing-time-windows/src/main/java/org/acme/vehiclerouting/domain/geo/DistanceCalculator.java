@@ -24,8 +24,8 @@ public interface DistanceCalculator {
 
     default long calculateDistance(Location from, Location to) {
 
-        String requestUrl = BASE_URL + "?api_key=" + API_KEY
-                + "&start=" + from.getLongitude() + "," + from.getLatitude()
+        String requestUrl = BASE_URL + "?"
+                + "start=" + from.getLongitude() + "," + from.getLatitude()
                 + "&end=" + to.getLongitude() + "," + to.getLatitude();
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
