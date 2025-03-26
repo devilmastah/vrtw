@@ -1,0 +1,14 @@
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/VehicleRoutePlan.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/Customer.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/rest/exception/VehicleRoutingSolverException.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/geo/DistanceCalculator.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/solver/ArrivalTimeUpdatingVariableListener.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/rest/VehicleRoutePlanResource.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/geo/HaversineDistanceCalculator.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/Depot.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/solver/VehicleRoutingConstraintProvider.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/rest/exception/ErrorInfo.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/Location.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/rest/exception/VehicleRoutingSolverExceptionMapper.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/domain/Vehicle.java
+/root/timeFold8787/java/vehicle-routing-time-windows/src/main/java/org/acme/vehiclerouting/rest/VehicleRouteDemoResource.java
