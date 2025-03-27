@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class HaversineDistanceCalculator implements DistanceCalculator {
 
  
-    String BASE_URL = "http://localhost:8081/ors/v2/directions/driving-car/";
+    String BASE_URL = "http://ors-app:8082/ors/v2/directions/driving-car/";
 
     private static final int EARTH_RADIUS_IN_KM = 6371;
     private static final int TWICE_EARTH_RADIUS_IN_KM = 2 * EARTH_RADIUS_IN_KM;
