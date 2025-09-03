@@ -107,6 +107,10 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         }
 
         sb.append('}');
+
+        System.out.println("[DistanceCalc] ORS request body: " + sb.toString());
+
+        
         return sb.toString();
     }
 
