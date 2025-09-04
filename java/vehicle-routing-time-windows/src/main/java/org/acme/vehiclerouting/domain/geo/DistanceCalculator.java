@@ -22,7 +22,7 @@ import java.util.Map;
 public interface DistanceCalculator {
 
     // If calling from inside Docker, use the service name+port (change if needed):
-    String BASE_URL = "http://ors-app:8080/ors/v2/directions/driving-car";
+    String BASE_URL = "http://ors-app:8081/ors/v2/directions/driving-car";
     String API_KEY  = ""; // "5b3ce3..." or "" if disabled
 
     // Behavior toggles
