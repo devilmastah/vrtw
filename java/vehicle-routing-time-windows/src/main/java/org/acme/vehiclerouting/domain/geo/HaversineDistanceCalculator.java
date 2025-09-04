@@ -20,7 +20,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
 
     // --- ORS endpoint in your docker-compose network ---
     // If your ORS enforces an API key, set API_KEY accordingly; otherwise leave empty.
-    private static final String ORS_BASE = "http://ors-app:8081/ors/v2/directions/driving-car";
+    private static final String ORS_BASE = "http://ors-app:8082/ors/v2/directions/driving-car";
     private static final String API_KEY  = ""; // e.g. "5b3c...e21" or "" if disabled
 
     // Behaviour switches (keep method signature unchanged)
