@@ -72,13 +72,6 @@ public class Customer {
         this.allowHighways = allowHighways;
     }
 
-    // Helper: for a leg, allow highways only if BOTH endpoints allow them.
-    private boolean legAllowsHighways(Customer from, Customer to) {
-        boolean fromAllow = (from == null) ? true : from.isAllowHighways(); // depot treated as true
-        boolean toAllow   = (to   == null) ? true : to.isAllowHighways();
-        return fromAllow && toAllow;
-    }
-
     public String getId() {
         return id;
     }
