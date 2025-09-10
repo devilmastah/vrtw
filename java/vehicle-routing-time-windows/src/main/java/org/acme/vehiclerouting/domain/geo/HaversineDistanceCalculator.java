@@ -102,7 +102,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
 
         // options.avoid_features
         if (!allowHighways) {
-           // sb.append(",\"options\":{\"avoid_features\":[\"highways\"]}");
+            sb.append(",\"options\":{\"avoid_features\":[\"highways\"]}");
         }
 
         sb.append('}');
