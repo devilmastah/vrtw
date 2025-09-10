@@ -26,7 +26,7 @@ public interface DistanceCalculator {
     String API_KEY = ""; // "5b3ce3..." or "" if disabled
 
     // Behavior toggles
-    String ORS_PREFERENCE = "shortest"; // or "fastest"
+    String ORS_PREFERENCE = "fastest"; // or "fastest"
     Integer MAXIMUM_SPEED_KM = 85;      // null to omit
 
     int CONNECT_TIMEOUT_MS = 1500;
