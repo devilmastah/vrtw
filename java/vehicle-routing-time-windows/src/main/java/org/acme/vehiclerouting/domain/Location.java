@@ -14,7 +14,9 @@ public class Location {
     private double longitude;
 
     @JsonIgnore
-    private Map<Location, Long> drivingTimeSecondsMap;
+    private Map<Location, Long> drivingTimeWithoutHighwaysMap;
+    @JsonIgnore
+    private Map<Location, Long> drivingTimeWithHighwaysMap;
 
     @JsonCreator
     public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
@@ -30,26 +32,36 @@ public class Location {
         return longitude;
     }
 
-    public Map<Location, Long> getDrivingTimeSecondsMap() {
-        return drivingTimeSecondsMap;
-    }
-
     /**
-     * Set the driving time map (in seconds).
+     * Set the driving time map (in seconds) for routes avoiding highways.
      *
-     * @param drivingTimeSecondsMap a map containing driving time from here to other locations
+     * @param drivingTimeWithoutHighwaysMap a map containing driving time from here to other locations
      */
-    public void setDrivingTimeSecondsMap(Map<Location, Long> drivingTimeSecondsMap) {
-        this.drivingTimeSecondsMap = drivingTimeSecondsMap;
+    public void setDrivingTimeWithoutHighwaysMap(Map<Location, Long> drivingTimeWithoutHighwaysMap) {
+        this.drivingTimeWithoutHighwaysMap = drivingTimeWithoutHighwaysMap;
     }
 
     /**
-     * Driving time to the given location in seconds.
+     * Set the driving time map (in seconds) for routes allowing highways.
      *
-     * @param location other location
+     * @param drivingTimeWithHighwaysMap a map containing driving time from here to other locations
+     */
+    public void setDrivingTimeWithHighwaysMap(Map<Location, Long> drivingTimeWithHighwaysMap) {
+        this.drivingTimeWithHighwaysMap = drivingTimeWithHighwaysMap;
+    }
+
+    /**
+     * Driving time to the given location in seconds, based on highway preference.
+     *
+     * @param location      other location
+     * @param allowHighways whether to use the travel time matrix that allows highways
      * @return driving time in seconds
      */
-    public long getDrivingTimeTo(Location location) {
-        return drivingTimeSecondsMap.get(location);
+    public long getDrivingTimeTo(Location location, boolean allowHighways) {
+        if (allowHighways) {
+            return drivingTimeWithHighwaysMap.get(location);
+        } else {
+            return drivingTimeWithoutHighwaysMap.get(location);
+        }
     }
 }

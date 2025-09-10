@@ -24,7 +24,7 @@ public class Customer {
 
     @PlanningId
     private String id;
-    
+
     private String name;
     private Location location;
     private LocalDateTime readyTime;
@@ -45,7 +45,7 @@ public class Customer {
     // NEW: per-customer routing preference (default false = avoid highways)
     private boolean allowHighways = false;
 
-    
+
     public Customer() {
     }
 
@@ -97,24 +97,20 @@ public class Customer {
     }
 
 
-    public int getCheffLevelRequired()
-    {
+    public int getCheffLevelRequired() {
         return cheffLevelRequired;
     }
 
-    public void setCheffLevelRequired(int cheffLevelRequired)
-    {
+    public void setCheffLevelRequired(int cheffLevelRequired) {
         this.cheffLevelRequired = cheffLevelRequired;
     }
 
 
-    public int getOrderIsDaySegment()
-    {
+    public int getOrderIsDaySegment() {
         return orderIsDaySegment;
     }
 
-    public void setOrderIsDaySegment(int orderIsDaySegment)
-    {
+    public void setOrderIsDaySegment(int orderIsDaySegment) {
         this.orderIsDaySegment = orderIsDaySegment;
     }
 
@@ -209,13 +205,13 @@ public class Customer {
 
     @JsonIgnore
     public long isFixedAssignmentPenalty() {
-       
+
         return 200000000;
     }
 
     @JsonIgnore
     public long isOtherMenuPenelty() {
-       
+
         return 300000000;
     }
 
@@ -240,7 +236,6 @@ public class Customer {
     }
 
 
-
     @JsonIgnore
     public long getServiceFinishedDelayInMinutes() {
         if (arrivalTime == null) {
@@ -255,12 +250,16 @@ public class Customer {
             throw new IllegalStateException(
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
-        if (previousCustomer == null) {
-            boolean allow = legAllowsHighways(null, this);
-            return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
+        boolean allowHighwaysDecision;
+        if (previousCustomer == null) { // Departs from depot
+            // Depot is assumed to have allowHighways = false.
+            // Decision is based on the current customer's preference.
+            allowHighwaysDecision = this.isAllowHighways();
+            return vehicle.getDepot().getLocation().getDrivingTimeTo(location, allowHighwaysDecision);
+        } else { // Departs from another customer
+            allowHighwaysDecision = this.isAllowHighways() || previousCustomer.isAllowHighways();
+            return previousCustomer.getLocation().getDrivingTimeTo(location, allowHighwaysDecision);
         }
-        boolean allow = legAllowsHighways(previousCustomer, this);
-        return previousCustomer.getLocation().getDrivingTimeTo(location);
     }
 
     // Required by the web UI even before the solution has been initialized.

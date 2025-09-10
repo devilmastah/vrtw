@@ -22,7 +22,7 @@ public class Vehicle {
     private String id;
     @JsonIdentityReference
     private Depot depot;
-    
+
     @JsonIdentityReference(alwaysAsId = true)
     @PlanningListVariable
     private List<Customer> customers;
@@ -51,7 +51,6 @@ public class Vehicle {
         return id;
     }
 
-   
 
     public void setId(String id) {
         this.id = id;
@@ -65,29 +64,22 @@ public class Vehicle {
         this.depot = depot;
     }
 
-    public int getCheffLevel()
-    {
+    public int getCheffLevel() {
         return cheffLevel;
     }
 
 
-    public void setCheffLevel(int cheffLevel)
-    {
+    public void setCheffLevel(int cheffLevel) {
         this.cheffLevel = cheffLevel;
     }
 
 
-
-
-
-    public float getServiceDurationMultiplier()
-    {
+    public float getServiceDurationMultiplier() {
         return serviceDurationMultiplier;
     }
 
 
-    public void setServiceTimeMultiplier(float serviceDurationMultiplier)
-    {
+    public void setServiceTimeMultiplier(float serviceDurationMultiplier) {
         this.serviceDurationMultiplier = serviceDurationMultiplier;
     }
 
@@ -124,24 +116,29 @@ public class Vehicle {
 
         long totalDistance = 0;
         Location previousLocation = depot.getLocation();
+        // A depot is treated as not allowing highways by default.
+        boolean previousAllowsHighways = false;
 
         for (Customer customer : customers) {
-            totalDistance += previousLocation.getDrivingTimeTo(customer.getLocation());
+            boolean legAllowsHighways = previousAllowsHighways || customer.isAllowHighways();
+            totalDistance += previousLocation.getDrivingTimeTo(customer.getLocation(), legAllowsHighways);
             previousLocation = customer.getLocation();
+            previousAllowsHighways = customer.isAllowHighways();
         }
-        totalDistance += previousLocation.getDrivingTimeTo(depot.getLocation());
+        // Return trip to depot: depends on the last customer's preference.
+        boolean returnLegAllowsHighways = previousAllowsHighways;
+        totalDistance += previousLocation.getDrivingTimeTo(depot.getLocation(), returnLegAllowsHighways);
 
         return totalDistance;
     }
 
-     @JsonIgnore
-     public boolean vehicleIsUnused() {
-        if(getTotalDrivingTimeSeconds() == 0)
-        {
+    @JsonIgnore
+    public boolean vehicleIsUnused() {
+        if (getTotalDrivingTimeSeconds() == 0) {
             return true;
         }
         return false;
-     }
+    }
 
     @Override
     public String toString() {

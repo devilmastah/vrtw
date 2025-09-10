@@ -23,61 +23,28 @@ public interface DistanceCalculator {
 
     // If calling from inside Docker, use the service name+port (change if needed):
     String BASE_URL = "http://ors-app:8082/ors/v2/directions/driving-car";
-    String API_KEY  = ""; // "5b3ce3..." or "" if disabled
+    String API_KEY = ""; // "5b3ce3..." or "" if disabled
 
     // Behavior toggles
-    String  ORS_PREFERENCE   = "shortest"; // or "fastest"
-    boolean AVOID_HIGHWAYS   = true;       // flip to false if you want
-    Integer MAXIMUM_SPEED_KM = 85;         // null to omit
+    String ORS_PREFERENCE = "shortest"; // or "fastest"
+    Integer MAXIMUM_SPEED_KM = 85;      // null to omit
 
     int CONNECT_TIMEOUT_MS = 1500;
-    int SOCKET_TIMEOUT_MS  = 2000;
+    int SOCKET_TIMEOUT_MS = 2000;
 
     ObjectMapper MAPPER = new ObjectMapper();
 
-    default long calculateDistance(Location from, Location to) {
-        if (from.equals(to)) return 0L;
-
-        String url = BASE_URL + "?format=geojson" + (API_KEY.isEmpty() ? "" : "&api_key=" + API_KEY);
-
-        String body = buildRequestBody(from, to);
-
-        RequestConfig cfg = RequestConfig.custom()
-                .setConnectTimeout(CONNECT_TIMEOUT_MS)
-                .setSocketTimeout(SOCKET_TIMEOUT_MS)
-                .build();
-
-        try (CloseableHttpClient http = HttpClients.custom().setDefaultRequestConfig(cfg).build()) {
-            HttpPost post = new HttpPost(url);
-            post.setHeader("Content-Type", "application/json");
-            post.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
-
-            HttpResponse resp = http.execute(post);
-            int code = resp.getStatusLine().getStatusCode();
-            String payload = EntityUtils.toString(resp.getEntity());
-
-            if (code >= 200 && code < 300) {
-                Long secs = parseDurationSeconds(payload);
-                if (secs != null) return secs;
-            } else {
-                System.err.println("[DistanceCalculator] ORS HTTP " + code + " payload: " + payload);
-            }
-        } catch (IOException e) {
-            System.err.println("[DistanceCalculator] ORS error: " + e.getMessage());
-        }
-        // Fallback: simple straight-line estimate (optional: return -1 instead)
-        return -1L;
-    }
+    long calculateDistance(Location from, Location to, boolean allowHighways);
 
     default Map<Location, Map<Location, Long>> calculateBulkDistance(
             Collection<Location> fromLocations,
-            Collection<Location> toLocations) {
+            Collection<Location> toLocations, boolean allowHighways) {
         Map<Location, Map<Location, Long>> distanceMatrix = new HashMap<>();
         for (Location from : fromLocations) {
             Map<Location, Long> row = new HashMap<>();
             for (Location to : toLocations) {
                 if (!from.equals(to)) {
-                    long seconds = calculateDistance(from, to);
+                    long seconds = calculateDistance(from, to, allowHighways);
                     row.put(to, seconds);
                 }
             }
@@ -87,25 +54,30 @@ public interface DistanceCalculator {
     }
 
     default void initDistanceMaps(Collection<Location> locations) {
-        Map<Location, Map<Location, Long>> dm = calculateBulkDistance(locations, locations);
-        locations.forEach(loc -> loc.setDrivingTimeSecondsMap(dm.get(loc)));
+        // Calculate for "without highways"
+        Map<Location, Map<Location, Long>> withoutHighwaysDm = calculateBulkDistance(locations, locations, false);
+        locations.forEach(loc -> loc.setDrivingTimeWithoutHighwaysMap(withoutHighwaysDm.get(loc)));
+
+        // Calculate for "with highways"
+        Map<Location, Map<Location, Long>> withHighwaysDm = calculateBulkDistance(locations, locations, true);
+        locations.forEach(loc -> loc.setDrivingTimeWithHighwaysMap(withHighwaysDm.get(loc)));
     }
 
     // --- helpers ---
 
-    private static String buildRequestBody(Location from, Location to) {
+    private static String buildRequestBody(Location from, Location to, boolean allowHighways) {
         StringBuilder sb = new StringBuilder(256);
         sb.append('{');
         sb.append("\"coordinates\":[[")
-          .append(from.getLongitude()).append(',').append(from.getLatitude())
-          .append("],[")
-          .append(to.getLongitude()).append(',').append(to.getLatitude())
-          .append("]]");
+                .append(from.getLongitude()).append(',').append(from.getLatitude())
+                .append("],[")
+                .append(to.getLongitude()).append(',').append(to.getLatitude())
+                .append("]]");
         sb.append(",\"preference\":\"").append(ORS_PREFERENCE).append("\"");
         if (MAXIMUM_SPEED_KM != null) {
             sb.append(",\"maximum_speed\":").append(MAXIMUM_SPEED_KM);
         }
-        if (AVOID_HIGHWAYS) {
+        if (!allowHighways) {
             sb.append(",\"options\":{\"avoid_features\":[\"highways\"]}");
         }
         sb.append('}');

@@ -21,15 +21,14 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
     // --- ORS endpoint in your docker-compose network ---
     // If your ORS enforces an API key, set API_KEY accordingly; otherwise leave empty.
     private static final String ORS_BASE = "http://ors-app:8082/ors/v2/directions/driving-car";
-    private static final String API_KEY  = ""; // e.g. "5b3c...e21" or "" if disabled
+    private static final String API_KEY = ""; // e.g. "5b3c...e21" or "" if disabled
 
     // Behaviour switches (keep method signature unchanged)
     private static final String ORS_PREFERENCE = "shortest"; // "shortest" or "fastest"
-    private static final boolean AVOID_HIGHWAYS = true;       // flip to false if you want
-    private static final Integer MAXIMUM_SPEED = 85;          // km/h; null to omit
+    private static final Integer MAXIMUM_SPEED = 85;         // km/h; null to omit
 
     private static final int CONNECT_TIMEOUT_MS = 1500;
-    private static final int SOCKET_TIMEOUT_MS  = 2000;
+    private static final int SOCKET_TIMEOUT_MS = 2000;
 
     private static final int EARTH_RADIUS_IN_KM = 6371;
     private static final int TWICE_EARTH_RADIUS_IN_KM = 2 * EARTH_RADIUS_IN_KM;
@@ -42,13 +41,13 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
     }
 
     @Override
-    public long calculateDistance(Location from, Location to) {
+    public long calculateDistance(Location from, Location to, boolean allowHighways) {
         if (from.equals(to)) return 0L;
 
         String url = ORS_BASE + "?format=geojson" + (API_KEY.isEmpty() ? "" : "&api_key=" + API_KEY);
 
         // Build request body
-        String jsonBody = buildRequest(from, to);
+        String jsonBody = buildRequest(from, to, allowHighways);
 
         RequestConfig cfg = RequestConfig.custom()
                 .setConnectTimeout(CONNECT_TIMEOUT_MS)
@@ -80,16 +79,16 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         }
     }
 
-    private static String buildRequest(Location from, Location to) {
+    private static String buildRequest(Location from, Location to, boolean allowHighways) {
         StringBuilder sb = new StringBuilder(256);
         sb.append('{');
 
         // coordinates
         sb.append("\"coordinates\":[[")
-          .append(from.getLongitude()).append(',').append(from.getLatitude())
-          .append("],[")
-          .append(to.getLongitude()).append(',').append(to.getLatitude())
-          .append("]");
+                .append(from.getLongitude()).append(',').append(from.getLatitude())
+                .append("],[")
+                .append(to.getLongitude()).append(',').append(to.getLatitude())
+                .append("]");
 
         sb.append("]");
 
@@ -102,7 +101,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         }
 
         // options.avoid_features
-        if (AVOID_HIGHWAYS) {
+        if (!allowHighways) {
             sb.append(",\"options\":{\"avoid_features\":[\"highways\"]}");
         }
 
@@ -110,7 +109,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
 
         System.out.println("[DistanceCalc] ORS request body: " + sb.toString());
 
-        
+
         return sb.toString();
     }
 
@@ -171,5 +170,6 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         return new CartesianCoordinate(x, y, z);
     }
 
-    private record CartesianCoordinate(double x, double y, double z) {}
+    private record CartesianCoordinate(double x, double y, double z) {
+    }
 }
