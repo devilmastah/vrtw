@@ -42,7 +42,10 @@ public class Customer {
     private LocalDateTime arrivalTime;
     private int cheffLevelRequired;
     private int orderIsDaySegment;
+    // NEW: per-customer routing preference (default false = avoid highways)
+    private boolean allowHighways = false;
 
+    
     public Customer() {
     }
 
@@ -58,6 +61,22 @@ public class Customer {
         this.amountPizza = amountPizza;
         this.isPenalizedCheffPanelty = isPenalizedCheffPanelty;
         this.orderIsDaySegment = orderIsDaySegment;
+    }
+
+
+    public boolean isAllowHighways() {
+        return allowHighways;
+    }
+
+    public void setAllowHighways(boolean allowHighways) {
+        this.allowHighways = allowHighways;
+    }
+
+    // Helper: for a leg, allow highways only if BOTH endpoints allow them.
+    private boolean legAllowsHighways(Customer from, Customer to) {
+        boolean fromAllow = (from == null) ? true : from.isAllowHighways(); // depot treated as true
+        boolean toAllow   = (to   == null) ? true : to.isAllowHighways();
+        return fromAllow && toAllow;
     }
 
     public String getId() {
@@ -244,8 +263,10 @@ public class Customer {
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousCustomer == null) {
+            boolean allow = legAllowsHighways(null, this);
             return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
         }
+        boolean allow = legAllowsHighways(previousCustomer, this);
         return previousCustomer.getLocation().getDrivingTimeTo(location);
     }
 
