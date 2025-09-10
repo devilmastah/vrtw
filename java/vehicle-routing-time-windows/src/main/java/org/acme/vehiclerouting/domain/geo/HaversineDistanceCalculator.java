@@ -24,7 +24,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
     private static final String API_KEY = ""; // e.g. "5b3c...e21" or "" if disabled
 
     // Behaviour switches (keep method signature unchanged)
-    private static final String ORS_PREFERENCE = "fastest"; // "shortest" or "fastest"
+    private static final String ORS_PREFERENCE = "shortest"; // "shortest" or "fastest"
     private static final Integer MAXIMUM_SPEED = 85;         // km/h; null to omit
 
     private static final int CONNECT_TIMEOUT_MS = 1500;
