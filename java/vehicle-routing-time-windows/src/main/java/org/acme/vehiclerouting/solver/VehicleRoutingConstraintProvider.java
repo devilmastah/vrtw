@@ -1,6 +1,6 @@
 package org.acme.vehiclerouting.solver;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
+import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore; // ADD THIS IMPORT
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -16,7 +16,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
-        return new Constraint[]{
+        return new Constraint[] {
                 // --- HARD CONSTRAINTS (Unbreakable) ---
                 vehicleIsFixed(factory),
                 noTwoCustomersAtSameDueTime(factory),
@@ -41,7 +41,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
         return factory.forEach(Customer.class)
                 .filter(Customer::isFixedAssignment)
                 .filter(customer -> !customer.getFixedVehicle().equals(customer.getVehicle()))
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_HARD,
                         Customer::isFixedAssignmentPenalty)
                 .asConstraint("vehicleIsFixed");
     }
@@ -50,17 +50,17 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
         return factory.forEachUniquePair(Customer.class,
                 Joiners.equal(Customer::getVehicle),
                 Joiners.equal(Customer::getDueTime))
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD, (customer1, customer2) -> 2000000L) // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_HARD, (customer1, customer2) -> 2000000L)
                 .asConstraint("noTwoCustomersAtSameDueTime");
     }
 
     protected Constraint noTwoCustomersAtSameEndTime(ConstraintFactory factory) {
         return factory.forEachUniquePair(Customer.class,
-                        Joiners.equal(Customer::getVehicle),
-                        Joiners.equal(customer -> customer.getDueTime() != null && customer.getServiceDuration() != null
-                                ? customer.getDueTime().plus(customer.getServiceDuration())
-                                : null))
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD, (customer1, customer2) -> 2000000L) // FIXED
+                Joiners.equal(Customer::getVehicle),
+                Joiners.equal(customer -> customer.getDueTime() != null && customer.getServiceDuration() != null
+                        ? customer.getDueTime().plus(customer.getServiceDuration())
+                        : null))
+                .penalize(HardMediumSoftLongScore.ONE_HARD, (customer1, customer2) -> 2000000L)
                 .asConstraint("noTwoCustomersAtSameEndTime");
     }
 
@@ -76,7 +76,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
                                         ? customer.getDueTime().plus(customer.getServiceDuration())
                                         : minDateTime),
                         Joiners.greaterThan(customer -> customer.getDueTime() != null ? customer.getDueTime() : minDateTime))
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_HARD,
                         (customer1, customer2) -> {
                             LocalDateTime dueTime1 = customer1.getDueTime() != null ? customer1.getDueTime() : maxDateTime;
                             LocalDateTime serviceEnd2 = customer2.getDueTime() != null && customer2.getServiceDuration() != null
@@ -94,7 +94,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     protected Constraint serviceFinishedAfterAcceptableWindow(ConstraintFactory factory) {
         return factory.forEach(Customer.class)
                 .filter(Customer::isServiceFinishedAfterAcceptableDueTime)
-                .penalizeLong(HardMediumSoftLongScore.ONE_MEDIUM, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_MEDIUM,
                         customer -> customer.getUnacceptableDelayInMinutes() * customer.getUnacceptableDelayInMinutes())
                 .asConstraint("serviceFinishedAfterAcceptableWindow");
     }
@@ -104,7 +104,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     // ************************************************************************
     protected Constraint minimizeTravelTime(ConstraintFactory factory) {
         return factory.forEach(Vehicle.class)
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_SOFT,
                         Vehicle::getTotalDrivingTimeSeconds)
                 .asConstraint("minimizeTravelTime");
     }
@@ -114,7 +114,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
                 .filter(customer -> customer.getAmountPizza() > 10)
                 .join(Vehicle.class,
                         Joiners.equal(Customer::getVehicle, Function.identity()))
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_SOFT,
                         (customer, vehicle) -> calculateChefPenalty(customer.getAmountPizza(), vehicle.getCheffLevel()))
                 .asConstraint("cheffHasPaneltyLargeOrder");
     }
@@ -123,7 +123,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     protected Constraint serviceFinishedAfterDueTimeSoft(ConstraintFactory factory) {
         return factory.forEach(Customer.class)
                 .filter(Customer::isServiceFinishedAfterDueTime)
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, // FIXED
+                .penalize(HardMediumSoftLongScore.ONE_SOFT,
                         Customer::getServiceFinishedDelayInMinutes)
                 .asConstraint("serviceFinishedAfterDueTimeSoft");
     }
