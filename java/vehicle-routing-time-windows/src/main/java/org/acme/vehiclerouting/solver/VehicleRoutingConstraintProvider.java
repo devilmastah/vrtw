@@ -18,18 +18,34 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
         return new Constraint[] {
-                serviceFinishedAfterDueTime(factory),
-                minimizeTravelTime(factory),
+                // --- HARD CONSTRAINTS (Unbreakable) ---
                 vehicleIsFixed(factory),
-                cheffHasPaneltyLargeOrder(factory),
                 noTwoCustomersAtSameDueTime(factory),
                 noTwoCustomersAtSameEndTime(factory),
-                customerDueTimeNotOverlapping(factory) // Added the new constraint here
-                // carAvailableForDaysegmentOfCustomer(factory),
-                // vehicleIsNotDoingShit(factory)
+                customerDueTimeNotOverlapping(factory),
+
+                // --- MEDIUM CONSTRAINTS (High Priority Problems) ---
+                serviceFinishedAfterAcceptableWindow(factory),
+
+                // --- SOFT CONSTRAINTS (Optimizations) ---
+                minimizeTravelTime(factory),
+                cheffHasPaneltyLargeOrder(factory),
+                serviceFinishedAfterDueTimeSoft(factory) // Optional: small penalty for any lateness
         };
     }
 
+
+    // ************************************************************************
+    // Medium constraints - NEW
+    // ************************************************************************
+    protected Constraint serviceFinishedAfterAcceptableWindow(ConstraintFactory factory) {
+        return factory.forEach(Customer.class)
+                .filter(Customer::isServiceFinishedAfterAcceptableDueTime)
+                // Penalize heavily for unacceptable delays
+                .penalize(HardMediumSoftLongScore.ONE_MEDIUM, // THIS IS THE KEY CHANGE
+                        customer -> customer.getUnacceptableDelayInMinutes() * customer.getUnacceptableDelayInMinutes())
+                .asConstraint("serviceFinishedAfterAcceptableWindow");
+    }
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
@@ -61,30 +77,34 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     }
 
  
-
+   // Optional but recommended: add a small soft penalty for ANY lateness
+    protected Constraint serviceFinishedAfterDueTimeSoft(ConstraintFactory factory) {
+        return factory.forEach(Customer.class)
+                .filter(Customer::isServiceFinishedAfterDueTime)
+                // Small penalty to encourage being on time, even within the acceptable window
+                .penalize(HardMediumSoftLongScore.ONE_SOFT,
+                        Customer::getServiceFinishedDelayInMinutes)
+                .asConstraint("serviceFinishedAfterDueTimeSoft");
+    }
     // ************************************************************************
     // Soft constraints
     // 27-06 the large order panelty was changed from ONE_HARD to ONE_SOFT, to check how this works out
     // ************************************************************************
 
    protected Constraint minimizeTravelTime(ConstraintFactory factory) {
-       return factory.forEach(Vehicle.class)
-               .penalizeLong(HardSoftLongScore.ONE_SOFT,
-                  vehicle -> {
-                    long penalty = vehicle.getTotalDrivingTimeSeconds();
-                   // System.out.println("Penalty for minimizeTravelTime: " + penalty);
-                    return penalty;
-                })
-               .asConstraint("minimizeTravelTime");
-   }
-
+        return factory.forEach(Vehicle.class)
+                .penalize(HardMediumSoftLongScore.ONE_SOFT, // CHANGED SCORE TYPE
+                        Vehicle::getTotalDrivingTimeSeconds)
+                .asConstraint("minimizeTravelTime");
+    }
 
     protected Constraint cheffHasPaneltyLargeOrder(ConstraintFactory factory) {
+        // ... unchanged logic, but update score type
         return factory.forEach(Customer.class)
             .filter(customer -> customer.getAmountPizza() > 10)
             .join(Vehicle.class,
                 Joiners.equal(Customer::getVehicle, Function.identity()))
-            .penalizeLong(HardSoftLongScore.ONE_SOFT,
+            .penalize(HardMediumSoftLongScore.ONE_SOFT, // CHANGED SCORE TYPE
                 (customer, vehicle) -> calculateChefPenalty(customer.getAmountPizza(), vehicle.getCheffLevel()))
             .asConstraint("cheffHasPaneltyLargeOrder");
     }

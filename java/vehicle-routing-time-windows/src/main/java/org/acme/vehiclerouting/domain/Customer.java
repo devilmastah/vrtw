@@ -178,6 +178,27 @@ public class Customer {
         this.name = name;
     }
 
+    @JsonIgnore
+public long getUnacceptableDelayInMinutes() {
+    if (getDepartureTime() == null) {
+        return 0;
+    }
+    // Calculate how many minutes late it is past the acceptable window
+    LocalDateTime acceptableDueTime = dueTime.plusMinutes(30);
+    if (getDepartureTime().isAfter(acceptableDueTime)) {
+        return Duration.between(acceptableDueTime, getDepartureTime()).toMinutes();
+    }
+    return 0;
+}
+
+
+
+    @JsonIgnore
+public boolean isServiceFinishedAfterAcceptableDueTime() {
+    // Check if service finishes after the due time + 30 minutes
+    return getDepartureTime() != null && getDepartureTime().isAfter(dueTime.plusMinutes(30));
+}
+
     // ************************************************************************
     // Complex methods
     // ************************************************************************
