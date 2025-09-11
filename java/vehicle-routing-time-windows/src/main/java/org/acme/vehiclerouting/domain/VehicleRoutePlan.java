@@ -36,7 +36,7 @@ public class VehicleRoutePlan {
     private List<Customer> customers;
 
     @PlanningScore
-    private HardMediumSoftLongScore  score;
+    private HardSoftLongScore score;
 
     private Location southWestCorner;
     private Location northEastCorner;
@@ -52,7 +52,7 @@ public class VehicleRoutePlan {
     public VehicleRoutePlan() {
     }
 
-    public VehicleRoutePlan(String name, HardMediumSoftLongScore  score, SolverStatus solverStatus) {
+    public VehicleRoutePlan(String name, HardSoftLongScore score, SolverStatus solverStatus) {
         this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;
@@ -115,11 +115,11 @@ public class VehicleRoutePlan {
         this.customers = customers;
     }
 
-    public HardMediumSoftLongScore getScore() {
+    public HardSoftLongScore getScore() {
         return score;
     }
 
-    public void setScore(HardMediumSoftLongScore score) {
+    public void setScore(HardSoftLongScore score) {
         this.score = score;
     }
 
