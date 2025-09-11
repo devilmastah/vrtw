@@ -9,7 +9,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore; // ADD THIS IMPORT
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.geo.DistanceCalculator;
@@ -36,7 +36,7 @@ public class VehicleRoutePlan {
     private List<Customer> customers;
 
     @PlanningScore
-    private HardMediumSoftLongScore score;
+    private HardMediumSoftLongScore  score;
 
     private Location southWestCorner;
     private Location northEastCorner;
@@ -52,7 +52,7 @@ public class VehicleRoutePlan {
     public VehicleRoutePlan() {
     }
 
-    public VehicleRoutePlan(String name, HardMediumSoftLongScore score, SolverStatus solverStatus) {
+    public VehicleRoutePlan(String name, HardMediumSoftLongScore  score, SolverStatus solverStatus) {
         this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;

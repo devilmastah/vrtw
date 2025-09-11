@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore; // ADD THIS IMPORT
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
@@ -44,7 +44,7 @@ public class VehicleRoutePlanResource {
 
     private final SolverManager<VehicleRoutePlan, String> solverManager;
 
-    private final SolutionManager<VehicleRoutePlan, HardMediumSoftLongScore> solutionManager; // CHANGED
+    private final SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
@@ -57,12 +57,11 @@ public class VehicleRoutePlanResource {
 
     @Inject
     public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
-            SolutionManager<VehicleRoutePlan, HardMediumSoftLongScore> solutionManager) { // CHANGED
+            SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
 
-    // ... REST OF THE FILE IS UNCHANGED ...
     @Operation(summary = "List the job IDs of all submitted route plans.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Collection of all job IDs.",
@@ -187,5 +186,6 @@ public class VehicleRoutePlanResource {
         static Job ofException(Throwable exception) {
             return new Job(null, exception);
         }
+
     }
 }
